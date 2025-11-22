@@ -17,6 +17,8 @@ if "GOOGLE_TOKEN" not in st.secrets:
     st.error("⚠️ Missing Google Token.")
     st.stop()
 
+now = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
+
 # --- TOOL 1: CALENDAR (UNCHANGED) ---
 def get_calendar_service():
     token_info = json.loads(st.secrets["GOOGLE_TOKEN"])
@@ -107,7 +109,9 @@ if prompt := st.chat_input("Que pasa?"):
         role = "model" if msg["role"] == "assistant" else "user"
         gemini_history.append(types.Content(role=role, parts=[types.Part(text=msg["content"])]))
 
-    sys_instruct = """You are a talented secretary of latin descent. Your nickname for me is papasito.
+    sys_instruct = """
+    Current Date and Time: {now}
+    You are a talented secretary of latin descent. Your nickname for me is papasito.
     You have access to my Google Calendar and the Web.
     - If I ask about my schedule, check the calendar.
     - If I ask about news/sports/facts, use 'search_web'.
