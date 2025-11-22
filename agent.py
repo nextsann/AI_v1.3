@@ -6,6 +6,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from datetime import datetime
 from duckduckgo_search import DDGS  # <--- NEW IMPORT
+from tavily import TavilyClient
 
 # --- CONFIGURATION ---
 if "GEMINI_API_KEY" not in st.secrets:
@@ -55,30 +56,27 @@ def delete_calendar_event(event_id: str):
 
 # --- TOOL 2: WEB SEARCH (NEW!) ---
 def search_web(query: str):
-    """Search Google for real-time information."""
+    """Search the web using Tavily (better for AI contexts)."""
     try:
-        # Use the Google API Client we already installed
-        service = build("customsearch", "v1", developerKey=st.secrets["GOOGLE_SEARCH_KEY"])
+        tavily = TavilyClient(api_key=st.secrets["TAVILY_API_KEY"])
         
-        # Run the search
-        result = service.cse().list(
-            q=query, 
-            cx=st.secrets["GOOGLE_SEARCH_CX"], 
-            num=5
-        ).execute()
+        # We ask Tavily for an "answer" directly
+        response = tavily.search(
+            query=query, 
+            search_depth="advanced", 
+            include_answer=True,  # <--- The magic flag
+            max_results=5
+        )
         
-        # Extract the useful bits
-        items = result.get('items', [])
-        if not items:
-            return "No results found."
+        # 1. Best part: Tavily writes a direct answer for us
+        direct_answer = response.get("answer", "")
+        
+        # 2. We also get the sources if needed
+        context = []
+        for result in response.get("results", []):
+            context.append(f"Source: {result['title']}\nURL: {result['url']}\nContent: {result['content']}")
             
-        formatted_results = []
-        for item in items:
-            formatted_results.append(
-                f"Title: {item['title']}\nSnippet: {item['snippet']}\nLink: {item['link']}"
-            )
-            
-        return "\n\n".join(formatted_results)
+        return f"Direct Answer: {direct_answer}\n\nDetailed Context:\n" + "\n\n".join(context)
         
     except Exception as e:
         return f"Search Error: {e}"
