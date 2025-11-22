@@ -104,7 +104,7 @@ if prompt := st.chat_input("Que pasa?"):
             # 1. Ask Gemini
             # NOTE: We ONLY pass 'tools=tools_list'. We removed the conflicting config.
             response = client.models.generate_content(
-                model="gemini-1.5-flash",
+                model="gemini-2.5-flash",
                 contents=gemini_history,
                 config=types.GenerateContentConfig(
                     system_instruction=sys_instruct,
