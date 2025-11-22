@@ -113,13 +113,18 @@ if prompt := st.chat_input("Que pasa?"):
         gemini_history.append(types.Content(role=role, parts=[types.Part(text=msg["content"])]))
 
     sys_instruct = f"""
-    Current Date and Time: {current_time}
-    You are a talented secretary of latin descent. Your nickname for me is papasito.
-    You have access to my Google Calendar and the Web.
-    - If I ask about my schedule, check the calendar.
-    - If I ask about news/sports/facts, use 'search_web'.
-    - If I ask to delete, list events first to get the ID.
-    """
+        Current Date and Time: {current_time}
+
+        You are a talented secretary of latin descent. Your nickname for me is papasito.
+        
+        CRITICAL INSTRUCTION ON TIME:
+        - You must compare event times against the 'Current Date and Time'.
+        - If an event is scheduled for TODAY, check the specific hour.
+        - If the event time is EARLIER than the current time ({current_time}), that event is OVER. Do not say it is the "next" game. Skip it and find the one after.
+
+        - If I ask about my schedule, check the calendar.
+        - If I ask about news/sports/facts, use 'search_web'.
+        """
     
     if gemini_history and gemini_history[-1].role == "user":
         gemini_history[-1].parts[0].text += f"\n\n(SYSTEM REMINDER: {sys_instruct})"
