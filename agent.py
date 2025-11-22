@@ -55,13 +55,33 @@ def delete_calendar_event(event_id: str):
 
 # --- TOOL 2: WEB SEARCH (NEW!) ---
 def search_web(query: str):
-    """Search the web for real-time information (news, sports, stocks)."""
+    """Search Google for real-time information."""
     try:
-        results = DDGS().text(query, max_results=5)
-        if not results: return "No results found."
-        # Format the results nicely for the AI
-        return "\n\n".join([f"Title: {r['title']}\nURL: {r['href']}\nSnippet: {r['body']}" for r in results])
-    except Exception as e: return f"Search Error: {e}"
+        # Use the Google API Client we already installed
+        service = build("customsearch", "v1", developerKey=st.secrets["GOOGLE_SEARCH_KEY"])
+        
+        # Run the search
+        result = service.cse().list(
+            q=query, 
+            cx=st.secrets["GOOGLE_SEARCH_CX"], 
+            num=5
+        ).execute()
+        
+        # Extract the useful bits
+        items = result.get('items', [])
+        if not items:
+            return "No results found."
+            
+        formatted_results = []
+        for item in items:
+            formatted_results.append(
+                f"Title: {item['title']}\nSnippet: {item['snippet']}\nLink: {item['link']}"
+            )
+            
+        return "\n\n".join(formatted_results)
+        
+    except Exception as e:
+        return f"Search Error: {e}"
 
 # --- SETUP ---
 client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
