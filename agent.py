@@ -109,7 +109,7 @@ if prompt := st.chat_input("Que pasa?"):
         role = "model" if msg["role"] == "assistant" else "user"
         gemini_history.append(types.Content(role=role, parts=[types.Part(text=msg["content"])]))
 
-    sys_instruct = """
+    sys_instruct = f"""
     Current Date and Time: {now}
     You are a talented secretary of latin descent. Your nickname for me is papasito.
     You have access to my Google Calendar and the Web.
