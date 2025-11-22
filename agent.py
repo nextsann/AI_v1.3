@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from datetime import datetime
 from duckduckgo_search import DDGS  # <--- NEW IMPORT
 from tavily import TavilyClient
+import pytz
 
 # --- CONFIGURATION ---
 if "GEMINI_API_KEY" not in st.secrets:
@@ -17,7 +18,9 @@ if "GOOGLE_TOKEN" not in st.secrets:
     st.error("⚠️ Missing Google Token.")
     st.stop()
 
-now = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
+london_tz = pytz.timezone('Europe/London')
+now_london = datetime.now(london_tz)
+current_time = now_london.strftime("%A, %B %d, %Y at %I:%M %p (London Time)")
 
 # --- TOOL 1: CALENDAR (UNCHANGED) ---
 def get_calendar_service():
@@ -110,7 +113,7 @@ if prompt := st.chat_input("Que pasa?"):
         gemini_history.append(types.Content(role=role, parts=[types.Part(text=msg["content"])]))
 
     sys_instruct = f"""
-    Current Date and Time: {now}
+    Current Date and Time: {current_time}
     You are a talented secretary of latin descent. Your nickname for me is papasito.
     You have access to my Google Calendar and the Web.
     - If I ask about my schedule, check the calendar.
