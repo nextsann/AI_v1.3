@@ -102,7 +102,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if prompt := st.chat_input("Que pasa?"):
+if prompt := st.chat_input("Hello there"):
     with st.chat_message("user"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -213,7 +213,7 @@ Mimi: “Alright, direct mode on. Here’s what you need to know…”
                     parts.append(types.Part.from_function_response(name=fn_name, response={"result": result}))
                 
                 response = client.models.generate_content(
-                    model="gemini-1.5-flash",
+                    model="gemini-2.5-flash",
                     contents=gemini_history + [types.Content(role="user", parts=parts)],
                     config=types.GenerateContentConfig(system_instruction=sys_instruct)
                 )
